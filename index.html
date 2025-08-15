@@ -1,0 +1,1480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RUBYFATH AID - Supporting Communities in Ghana</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <style>
+        :root {
+            --primary: #e74c3c;
+            --secondary: #3498db;
+            --accent: #f39c12;
+            --momo: #ffcc00;
+            --dark: #2c3e50;
+            --light: #ecf0f1;
+            --success: #27ae60;
+            --font: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: var(--font);
+            background-color: #f9f9f9;
+            color: var(--dark);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        /* Header & Navigation */
+        header {
+            background: linear-gradient(135deg, var(--dark), #1a2530);
+            color: white;
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logo i {
+            color: var(--accent);
+            font-size: 2.5rem;
+        }
+        
+        .logo h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+        
+        .logo span {
+            color: var(--accent);
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 25px;
+        }
+        
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+            padding: 5px 10px;
+            border-radius: 4px;
+        }
+        
+        nav a:hover, nav a.active {
+            color: var(--accent);
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        /* Hero Section with Image Slider */
+        .hero {
+            position: relative;
+            height: 90vh;
+            overflow: hidden;
+        }
+        
+        .slider {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 500%;
+            height: 100%;
+            display: flex;
+            animation: slide 25s infinite;
+        }
+        
+        .slide {
+            width: 20%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+        }
+        
+        .slide-1 { background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://raw.githubusercontent.com/Ayaaba-Fatawu-Sumaila/rubyfath-support/main/food.jpg') no-repeat center center/cover; }
+        .slide-2 { background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://raw.githubusercontent.com/Ayaaba-Fatawu-Sumaila/rubyfath-support/main/borehole.jpg') no-repeat center center/cover; }
+        .slide-3 { background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80') no-repeat center center/cover; }
+        .slide-4 { background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://raw.githubusercontent.com/Ayaaba-Fatawu-Sumaila/rubyfath-support/main/mosque.jpg') no-repeat center center/cover; }
+        .slide-5 { background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://raw.githubusercontent.com/Ayaaba-Fatawu-Sumaila/rubyfath-support/main/school.jpg') no-repeat center center/cover; }
+        
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+            height: 100%;
+            padding: 0 20px;
+            animation: fadeInUp 1.5s ease-out;
+        }
+        
+        .content-wrapper {
+            max-width: 800px;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+        }
+        
+        .hero h2 {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+        }
+        
+        .hero p {
+            font-size: 1.3rem;
+            margin-bottom: 30px;
+        }
+        
+        .btn-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            padding: 15px 35px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+            border: 2px solid var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn:hover {
+            background: transparent;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+        
+        .btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            border-color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: white;
+            color: var(--dark);
+            box-shadow: 0 10px 25px rgba(255, 255, 255, 0.2);
+        }
+        
+        .btn-momo {
+            background: var(--momo);
+            border-color: var(--momo);
+            color: #000;
+            font-weight: 700;
+        }
+        
+        .btn-momo:hover {
+            background: transparent;
+            color: var(--momo);
+        }
+        
+        /* Projects Section */
+        .section {
+            padding: 80px 20px;
+        }
+        
+        .section-title {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+        
+        .section-title h2 {
+            font-size: 2.5rem;
+            color: var(--dark);
+            margin-bottom: 15px;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .section-title h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: var(--primary);
+        }
+        
+        .section-title p {
+            max-width: 700px;
+            margin: 20px auto 0;
+            color: #666;
+            font-size: 1.1rem;
+        }
+        
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .project-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+        }
+        
+        .project-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+        
+        .project-img {
+            height: 200px;
+            overflow: hidden;
+        }
+        
+        .project-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s;
+        }
+        
+        .project-card:hover .project-img img {
+            transform: scale(1.1);
+        }
+        
+        .project-content {
+            padding: 25px;
+        }
+        
+        .project-content h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+        
+        .project-content p {
+            color: #666;
+            margin-bottom: 20px;
+        }
+        
+        .project-link {
+            display: inline-flex;
+            align-items: center;
+            color: var(--primary);
+            font-weight: 600;
+            text-decoration: none;
+            gap: 8px;
+            transition: transform 0.3s;
+        }
+        
+        .project-link:hover {
+            transform: translateX(5px);
+        }
+        
+        /* About Section */
+        .about {
+            background: linear-gradient(to right, var(--light), #d6dbdf);
+        }
+        
+        .about-content {
+            display: flex;
+            align-items: center;
+            gap: 50px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .about-text {
+            flex: 1;
+        }
+        
+        .about-text h2 {
+            font-size: 2.3rem;
+            margin-bottom: 20px;
+            color: var(--dark);
+        }
+        
+        .about-text p {
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .stat-item {
+            text-align: center;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s;
+        }
+        
+        .stat-item:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-item i {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+        
+        .stat-item h3 {
+            font-size: 2rem;
+            color: var(--dark);
+            margin-bottom: 5px;
+        }
+        
+        .about-img {
+            flex: 1;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .about-img img {
+            width: 100%;
+            display: block;
+        }
+        
+        /* Board Members Section */
+        .team {
+            background: white;
+        }
+        
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .member-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+            text-align: center;
+        }
+        
+        .member-card:hover {
+            transform: translateY(-10px);
+        }
+        
+        .member-img {
+            height: 50%;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .member-img img {
+            width: 80%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s;
+        }
+        
+        .member-card:hover .member-img img {
+            transform: scale(1.1);
+        }
+        
+        .member-info {
+            padding: 20px;
+            margin-bottom: -300px
+        }
+        
+        .member-info h3 {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+            color: var(--dark);
+        }
+        
+        .member-info .position {
+            color: var(--primary);
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: block;
+        }
+        
+        .member-info p {
+            color: #666;
+            margin-bottom: 20px;
+        }
+        
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            
+        }
+        
+        .social-links a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: #f5f5f5;
+            color: var(--dark);
+            border-radius: 50%;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+        
+        .social-links a:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-3px);
+        }
+        
+        /* Donation Section */
+        .donation {
+            background: linear-gradient(135deg, var(--secondary), #2980b9);
+            color: white;
+        }
+        
+        .donation .section-title h2 {
+            color: white;
+        }
+        
+        .donation .section-title p {
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .donation-container {
+            display: flex;
+            gap: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .donation-form {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            flex: 1;
+        }
+        
+        .donation-form h3 {
+            color: var(--dark);
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 1.8rem;
+        }
+        
+        .momo-notice {
+            background: rgba(255, 204, 0, 0.15);
+            border-left: 4px solid var(--momo);
+            padding: 15px;
+            margin-bottom: 25px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .momo-notice i {
+            color: var(--momo);
+            font-size: 1.5rem;
+            margin-right: 10px;
+            flex-shrink: 0;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .form-group input, 
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus, 
+        .form-group select:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.2);
+        }
+        
+        .amount-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .amount-option {
+            padding: 15px;
+            background: #f5f5f5;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: var(--dark);
+        }
+        
+        .amount-option:hover, 
+        .amount-option.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            transform: translateY(-3px);
+        }
+        
+        .custom-amount {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            display: none;
+        }
+        
+        .custom-amount input {
+            flex: 1;
+        }
+        
+        .momo-numbers {
+            background: #f9f9f9;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+            border: 1px dashed var(--momo);
+        }
+        
+        .momo-number {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .momo-number:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .momo-number:last-child {
+            margin-bottom: 0;
+        }
+        
+        .momo-icon {
+            background: var(--momo);
+            color: black;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 1rem;
+            font-weight: bold;
+        }
+        
+        .momo-details h4 {
+            margin-bottom: 5px;
+            color: var(--dark);
+        }
+        
+        .momo-details .number {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #333;
+            letter-spacing: 1px;
+        }
+        
+        .donation-info {
+            flex: 1;
+            color: white;
+        }
+        
+        .donation-info h3 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+        }
+        
+        .donation-info ul {
+            list-style: none;
+            margin-bottom: 30px;
+        }
+        
+        .donation-info ul li {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+        
+        .donation-info ul li i {
+            color: var(--accent);
+            font-size: 1.2rem;
+            margin-top: 3px;
+        }
+        
+        /* Location Section */
+        .location {
+            background: var(--light);
+        }
+        
+        .map-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            height: 500px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .location-info {
+            max-width: 1000px;
+            margin: 30px auto 0;
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            display: flex;
+            gap: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .address {
+            flex: 1;
+        }
+        
+        .contact-form {
+            flex: 1;
+        }
+        
+        .contact-form h3 {
+            margin-bottom: 20px;
+            color: var(--dark);
+        }
+        
+        /* Footer */
+        footer {
+            background: var(--dark);
+            color: white;
+            padding: 60px 20px 30px;
+        }
+        
+        .footer-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .footer-col h3 {
+            font-size: 1.5rem;
+            margin-bottom: 25px;
+            position: relative;
+            padding-bottom: 10px;
+        }
+        
+        .footer-col h3::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 50px;
+            height: 2px;
+            background: var(--primary);
+        }
+        
+        .footer-col p {
+            margin-bottom: 20px;
+            color: #bbb;
+        }
+        
+        .social-links-footer {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .social-links-footer a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-radius: 50%;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+        
+        .social-links-footer a:hover {
+            background: var(--primary);
+            transform: translateY(-3px);
+        }
+        
+        .footer-links {
+            list-style: none;
+        }
+        
+        .footer-links li {
+            margin-bottom: 12px;
+        }
+        
+        .footer-links a {
+            color: #bbb;
+            text-decoration: none;
+            transition: all 0.3s;
+            display: inline-block;
+            transform-origin: left;
+        }
+        
+        .footer-links a:hover {
+            color: var(--accent);
+            transform: translateX(5px);
+        }
+        
+        .copyright {
+            text-align: center;
+            padding-top: 30px;
+            margin-top: 40px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #bbb;
+        }
+        
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes slide {
+            0% { transform: translateX(0); }
+            10% { transform: translateX(0); }
+            20% { transform: translateX(-20%); }
+            30% { transform: translateX(-20%); }
+            40% { transform: translateX(-40%); }
+            50% { transform: translateX(-40%); }
+            60% { transform: translateX(-60%); }
+            70% { transform: translateX(-60%); }
+            80% { transform: translateX(-80%); }
+            90% { transform: translateX(-80%); }
+            100% { transform: translateX(0); }
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .about-content {
+                flex-direction: column;
+            }
+            
+            .donation-container {
+                flex-direction: column;
+            }
+            
+            .location-info {
+                flex-direction: column;
+            }
+            
+            .hero h2 {
+                font-size: 2.8rem;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .mobile-menu-btn {
+                display: block;
+            }
+            
+            nav ul {
+                position: fixed;
+                top: 80px;
+                left: -100%;
+                flex-direction: column;
+                background: var(--dark);
+                width: 100%;
+                padding: 20px;
+                transition: left 0.4s;
+            }
+            
+            nav ul.active {
+                left: 0;
+            }
+            
+            .hero h2 {
+                font-size: 2.2rem;
+            }
+            
+            .hero p {
+                font-size: 1.1rem;
+            }
+            
+            .btn-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .btn {
+                width: 100%;
+                margin-bottom: 0;
+            }
+            
+            .amount-options {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .logo h1 {
+                font-size: 1.5rem;
+            }
+            
+            .hero h2 {
+                font-size: 1.8rem;
+            }
+            
+            .section-title h2 {
+                font-size: 2rem;
+            }
+            
+            .stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .amount-options {
+                grid-template-columns: 1fr;
+            }
+            
+            .slider {
+                animation: slide 40s infinite;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header & Navigation -->
+    <header>
+        <div class="header-container">
+            <div class="logo">
+                <i class="fas fa-hands-helping"></i>
+                <h1>RUBYFATH <span>AID</span></h1>
+            </div>
+            <button class="mobile-menu-btn">
+                <i class="fas fa-bars"></i>
+            </button>
+            <nav>
+                <ul>
+                    <li><a href="#" class="active">Home</a></li>
+                    <li><a href="#projects">Projects</a></li>
+                    <li><a href="#about">About Us</a></li>
+                    <li><a href="#team">Board</a></li>
+                    <li><a href="#donate">Donate</a></li>
+                    <li><a href="#location">Location</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section with Image Slider -->
+    <section class="hero">
+        <div class="slider">
+            <div class="slide slide-1"></div>
+            <div class="slide slide-2"></div>
+            <div class="slide slide-3"></div>
+            <div class="slide slide-4"></div>
+            <div class="slide slide-5"></div>
+        </div>
+        
+        <div class="hero-content">
+            <div class="content-wrapper">
+                <h2>Bringing Hope to the Needy</h2>
+                <p>RUBYFATH AID is dedicated to transforming lives through education, clean water, food security, and community development in Offinso, Ghana and beyond.</p>
+                <div class="btn-container">
+                    <a href="#donate" class="btn btn-momo" id="donateBtn">Donate via MoMo</a>
+                    <a href="#projects" class="btn btn-secondary" id="projectsBtn">Our Future Projects</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section class="section" id="projects">
+        <div class="section-title">
+            <h2>Our Future Projects</h2>
+            <p>Discover how RUBYFATH AID is making a difference in communities across Ghana through our various initiatives.</p>
+        </div>
+        
+        <div class="projects-grid">
+            <div class="project-card">
+                <div class="project-img">
+                    <img src="https://raw.githubusercontent.com/Ayaaba-Fatawu-Sumaila/rubyfath-support/main/school.jpg" alt="School Construction">
+                </div>
+                <div class="project-content">
+                    <h3>School Construction</h3>
+                    <p>Building educational facilities to empower the next generation with quality education and resources.</p>
+                    <a href="#" class="project-link">
+                        Learn More <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="project-card">
+                <div class="project-img">
+                    <img src="https://raw.githubusercontent.com/Ayaaba-Fatawu-Sumaila/rubyfath-support/main/borehole.jpg" alt="Boreholes">
+                </div>
+                <div class="project-content">
+                    <h3>Clean Water Boreholes</h3>
+                    <p>Providing sustainable access to clean water through borehole construction in underserved communities.</p>
+                    <a href="#" class="project-link">
+                        Learn More <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="project-card">
+                <div class="project-img">
+                    <img src="https://raw.githubusercontent.com/Ayaaba-Fatawu-Sumaila/rubyfath-support/main/mosque.jpg" alt="Mosques">
+                </div>
+                <div class="project-content">
+                    <h3>Mosque Construction</h3>
+                    <p>Building places of worship and community gathering to foster spiritual growth and unity.</p>
+                    <a href="#" class="project-link">
+                        Learn More <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="project-card">
+                <div class="project-img">
+                    <img src="https://images.unsplash.com/photo-1467003909585-2f8a72700288?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80" alt="Food Support">
+                </div>
+                <div class="project-content">
+                    <h3>Food Support Programs</h3>
+                    <p>Ensuring food security for vulnerable families and orphans through sustainable food programs.</p>
+                    <a href="#" class="project-link">
+                        Learn More <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="section about" id="about">
+        <div class="about-content">
+            <div class="about-text">
+                <h2>About RUBYFATH AID</h2>
+                <p>Founded in 2024, RUBYFATH AID is a non-profit organization dedicated to improving lives in underserved communities across Ghana. Our mission is to create sustainable solutions to poverty through education, clean water, and community development.</p>
+                <p>Based in Offinso Ampabame, Ghana, we work directly with local communities to identify their most pressing needs and develop targeted interventions that make a lasting impact.</p>
+                
+                <div class="stats">
+                    <div class="stat-item">
+                        <i class="fas fa-school"></i>
+                        <h3>0+</h3>
+                        <p>Schools Built</p>
+                    </div>
+                    
+                    <div class="stat-item">
+                        <i class="fas fa-tint"></i>
+                        <h3>0</h3>
+                        <p>Boreholes Installed</p>
+                    </div>
+                    
+                    <div class="stat-item">
+                        <i class="fas fa-utensils"></i>
+                        <h3>0+</h3>
+                        <p>Meals Provided</p>
+                    </div>
+                    
+                    <div class="stat-item">
+                        <i class="fas fa-hands"></i>
+                        <h3>2+</h3>
+                        <p>Volunteers</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="about-img">
+                <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80" alt="RUBYFATH AID Team">
+            </div>
+        </div>
+    </section>
+
+    <!-- Board Members Section -->
+    <section class="section team" id="team">
+        <div class="section-title">
+            <h2>Our Board Members</h2>
+            <p>Meet the dedicated individuals guiding RUBYFATH AID's mission and vision.</p>
+        </div>
+        
+        <div class="team-grid">
+            <div class="member-card">
+                <div class="member-img">
+                    <img src="https://raw.githubusercontent.com/Ayaaba-Fatawu-Sumaila/rubyfath-support/main/rubyfath2_2025-06-05_22-16-05.jpg" alt="Mrs. Issahaku Rubabatu Kabore">
+                </div>
+                <div class="member-info">
+                    <h3>Mrs. Issahaku Rubabatu Kabore </h3>
+                    <span class="position">CEO & Founder</span>
+                    <p>Mrs. Rubabatu founded RUBYFATH AID in 2024 with a vision to transform communities in Ghana by helping them access their basic needs and beyond.
+                        She is a young health student with a deep passion for social work and community development, especially in supporting orphans and the underprivileged.
+                        Her leadership is marked by a strong commitment to transparency, accountability, and sustainable impact.
+                        Her drive for empowerment is inspired by her favorite Islamic quote from the Prophet (SAW):  
+                        “I and the person who looks after an orphan and provides for him will be in Paradise.” ✌️.</p>
+                    <div class="social-links">
+                        <a href="https://www.linkedin.com/in/ayaaba-fatawu-sumaila-2615492a6?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="https://wa.me/233558303838"><i class="fab fa-whatsapp"></i></a>
+                        <a href="mailto:"><i class="fas fa-envelope"></i></a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="member-card">
+                <div class="member-img">
+                    <img src="https://raw.githubusercontent.com/Ayaaba-Fatawu-Sumaila/rubyfath-support/main/88980.jpg" alt="Ayaaba Fatawu Sumaila">
+                </div>
+                <div class="member-info">
+                    <h3>Ayaaba Fatawu Sumaila</h3>
+                    <span class="position">Executive Director</span>
+                    <p>Fatawu brings over 1 year of experience in non-profit management, with a background in Computer Science and Engineering.
+                        He oversees daily operations and ensures that all programs align with the needs of the community, making the initiative a 
+                        beacon of certainty and accountability. He finds joy in helping individuals discover their potential, 
+                        regardless of their background. His ultimate aim is to put smiles on people’s faces and provide lasting solutions to challenges faced by the Ghanaian community.
+</p>
+                    <div class="social-links">
+                        <a href="https://www.linkedin.com/in/ayaaba-fatawu-sumaila-2615492a6?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="https://wa.me/0553783510"><i class="fab fa-whatsapp"></i></a>
+                        <a href="mailto:ayaabafatawusumaila@gmail.com"><i class="fas fa-envelope"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Donation Section -->
+    <section class="section donation" id="donate">
+        <div class="section-title">
+            <h2>Support Our Mission</h2>
+            <p>Your donation via Mobile Money helps us continue our vital work in Ghana.</p>
+        </div>
+        
+        <div class="donation-container">
+            <div class="donation-form">
+                <h3>Donate via Mobile Money</h3>
+                
+                <div class="momo-notice">
+                    <i class="fas fa-info-circle"></i>
+                    <span>We accept donations exclusively via Mobile Money to ensure secure and instant transfers.</span>
+                </div>
+                
+                <div class="amount-options">
+                    <div class="amount-option">₵50</div>
+                    <div class="amount-option">₵100</div>
+                    <div class="amount-option active">₵200</div>
+                    <div class="amount-option">₵500</div>
+                    <div class="amount-option">₵1000</div>
+                    <div class="amount-option" id="otherOption">Other</div>
+                </div>
+                
+                <div class="custom-amount" id="customAmount">
+                    <input type="number" id="customAmountInput" placeholder="Enter amount in ₵">
+                    <button class="btn" style="padding: 10px 15px;">Apply</button>
+                </div>
+                
+                <div class="form-group">
+                    <label for="fullname">Full Name</label>
+                    <input type="text" id="fullname" placeholder="Enter your full name">
+                </div>
+                
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    <input type="tel" id="phone" placeholder="Enter your phone number">
+                </div>
+                
+                <div class="momo-numbers">
+                    <h4 style="text-align: center; margin-bottom: 20px; color: var(--dark);">Send to:</h4>
+                    
+                    <div class="momo-number">
+                        <div class="momo-icon">MTN</div>
+                        <div class="momo-details">
+                            <h4>MTN Mobile Money</h4>
+                            <div class="number">055 830 3838</div>
+                        </div>
+                    </div>
+                    
+                    <div class="momo-number">
+                        <div class="momo-icon">TC</div>
+                        <div class="momo-details">
+                            <h4>Telecel Cash</h4>
+                            <div class="number">050 968 7530</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="btn btn-momo" style="width: 100%;">
+                    <i class="fas fa-mobile-alt"></i> Confirm Donation
+                </button>
+            </div>
+            
+            <div class="donation-info">
+                <h3>Your Impact</h3>
+                <p>Every donation makes a significant difference in the lives of those we serve:</p>
+                
+                <ul>
+                    <li>
+                        <i class="fas fa-check-circle"></i>
+                        <span>₵50 provides school supplies for 2 children</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-check-circle"></i>
+                        <span>₵100 feeds a family</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-check-circle"></i>
+                        <span>₵200 helps maintain a clean water borehole</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-check-circle"></i>
+                        <span>₵500 supports the construction of a classroom</span>
+                    </li>
+                </ul>
+                
+                <p>All donations directly support our programs in Ghana. We provide regular updates on how your contributions are making a difference.</p>
+                
+                <div style="margin-top: 30px; background: rgba(255,255,255,0.1); padding: 20px; border-radius: 8px;">
+                    <h4><i class="fas fa-shield-alt"></i> Secure Donations</h4>
+                    <p>Your Mobile Money donations are processed securely and go directly to support our projects in Ghana.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Location Section -->
+    <section class="section location" id="location">
+        <div class="section-title">
+            <h2>Our Location</h2>
+            <p>Visit us in Offinso, Ghana to see our work firsthand or get in touch with our team.</p>
+        </div>
+        
+        <div class="map-container">
+            <div id="map"></div>
+        </div>
+        
+        <div class="location-info">
+            <div class="address">
+                <h3>RUBYFATH AID Headquarters</h3>
+                <p><i class="fas fa-map-marker-alt"></i> Offinso Ampabame, Ashanti Region, Ghana</p>
+                <p><i class="fas fa-phone"></i> +233 55 830 3838 / +233 50 968 7530</p>
+                <p><i class="fas fa-envelope"></i> info@rubyfathaid.org</p>
+                <p><i class="fas fa-clock"></i> Monday-Friday: 8:00 AM - 5:00 PM</p>
+            </div>
+            
+            <div class="contact-form">
+                <h3>Send us a Message</h3>
+                <div class="form-group">
+                    <input type="text" placeholder="Your Name">
+                </div>
+                <div class="form-group">
+                    <input type="email" placeholder="Your Email">
+                </div>
+                <div class="form-group">
+                    <textarea placeholder="Your Message" style="width: 100%; padding: 12px 15px; height: 120px; border: 1px solid #ddd; border-radius: 5px;"></textarea>
+                </div>
+                <button class="btn">Send Message</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-container">
+            <div class="footer-col">
+                <h3>RUBYFATH AID</h3>
+                <p>Transforming lives through sustainable community development in Ghana. Join us in making a difference.</p>
+                
+                <div class="social-links-footer">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="https://wa.me/09553783510"><i class="fab fa-whatsapp"></i></a>
+                    <a href="https://www.linkedin.com/in/ayaaba-fatawu-sumaila-2615492a6?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app"><i class="fab fa-linkedin-in"></i></a>
+                </div>
+            </div>
+            
+            <div class="footer-col">
+                <h3>Projects</h3>
+                <ul class="footer-links">
+                    <li><a href="#">School Construction</a></li>
+                    <li><a href="#">Borehole Projects</a></li>
+                    <li><a href="#">Mosque Development</a></li>
+                    <li><a href="#">Food Support Programs</a></li>
+                    <li><a href="#">Orphan Care Initiatives</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-col">
+                <h3>Quick Links</h3>
+                <ul class="footer-links">
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">Our Team</a></li>
+                    <li><a href="#">Get Involved</a></li>
+                    <li><a href="#">Events</a></li>
+                    <li><a href="#">Blog & News</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-col">
+                <h3>Contact Us</h3>
+                <p><i class="fas fa-map-marker-alt"></i> Offinso Central, Ashanti Region, Ghana</p>
+                <p><i class="fas fa-phone"></i> +233 55 830 3838</p>
+                <p><i class="fas fa-envelope"></i> info@rubyfathaid.org</p>
+            </div>
+        </div>
+        
+        <div class="copyright">
+            <p>&copy; 2025 RUBYFATH AID Foundation. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // Mobile Menu Toggle
+        document.querySelector('.mobile-menu-btn').addEventListener('click', function() {
+            document.querySelector('nav ul').classList.toggle('active');
+        });
+        
+        // Amount Options
+        const amountOptions = document.querySelectorAll('.amount-option');
+        const customAmount = document.getElementById('customAmount');
+        const customAmountInput = document.getElementById('customAmountInput');
+        
+        amountOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                amountOptions.forEach(opt => opt.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Show/hide custom amount field
+                if (this.id === 'otherOption') {
+                    customAmount.style.display = 'flex';
+                } else {
+                    customAmount.style.display = 'none';
+                }
+            });
+        });
+        
+        // Apply custom amount
+        customAmount.querySelector('button').addEventListener('click', function() {
+            const amount = customAmountInput.value;
+            if (amount) {
+                document.querySelector('#otherOption').textContent = `₵${amount}`;
+                customAmountInput.value = '';
+            }
+        });
+        
+        // Initialize Map
+        const map = L.map('map').setView([7.3500, -2.3167], 14);
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+        
+        // Add marker for Offinso, Ghana
+        L.marker([7.3500, -2.3167]).addTo(map)
+            .bindPopup('RUBYFATH AID Headquarters<br>Offinso, Ghana')
+            .openPopup();
+        
+        // Donate Button Animation
+        const donateBtn = document.getElementById('donateBtn');
+        donateBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            document.querySelector('#donate .section-title').scrollIntoView({ 
+                behavior: 'smooth',
+                block: 'center'
+            });
+        });
+        
+        // Projects Button Animation
+        const projectsBtn = document.getElementById('projectsBtn');
+        projectsBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            document.querySelector('#projects .section-title').scrollIntoView({ 
+                behavior: 'smooth',
+                block: 'center'
+            });
+        });
+        
+        // Donation form submission
+        document.querySelector('.donation-form .btn').addEventListener('click', function() {
+            const amount = document.querySelector('.amount-option.active').textContent;
+            const name = document.getElementById('fullname').value || "Supporter";
+            
+            // Create a message with instructions
+            const message = `
+                <div style="text-align: center; padding: 20px;">
+                    <i class="fas fa-check-circle" style="font-size: 4rem; color: var(--success);"></i>
+                    <h3 style="margin: 20px 0;">Thank You, ${name}!</h3>
+                    <p>Please complete your donation of <strong>${amount}</strong> by sending it to one of our Mobile Money numbers:</p>
+                    
+                    <div style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; margin: 30px 0;">
+                        <div style="background: #f9f9f9; padding: 20px; border-radius: 10px; text-align: center; width: 250px;">
+                            <div style="background: var(--momo); color: black; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; font-size: 1.5rem; font-weight: bold;">MTN</div>
+                            <h4>MTN Mobile Money</h4>
+                            <div style="font-size: 1.4rem; font-weight: 700; margin: 10px 0;">024 780 6527</div>
+                        </div>
+                        
+                        <div style="background: #f9f9f9; padding: 20px; border-radius: 10px; text-align: center; width: 250px;">
+                            <div style="background: var(--momo); color: black; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; font-size: 1.5rem; font-weight: bold;">TC</div>
+                            <h4>Telecel Cash</h4>
+                            <div style="font-size: 1.4rem; font-weight: 700; margin: 10px 0;">233 509 687 530</div>
+                        </div>
+                    </div>
+                    
+                    <p>After sending your donation, you will receive a confirmation SMS.</p>
+                </div>
+            `;
+            
+            // Create modal
+            const modal = document.createElement('div');
+            modal.style.position = 'fixed';
+            modal.style.top = '0';
+            modal.style.left = '0';
+            modal.style.width = '100%';
+            modal.style.height = '100%';
+            modal.style.backgroundColor = 'rgba(0,0,0,0.8)';
+            modal.style.zIndex = '2000';
+            modal.style.display = 'flex';
+            modal.style.alignItems = 'center';
+            modal.style.justifyContent = 'center';
+            modal.innerHTML = `
+                <div style="background: white; border-radius: 10px; padding: 30px; max-width: 600px; width: 90%; position: relative;">
+                    <button style="position: absolute; top: 15px; right: 15px; background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
+                    ${message}
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // Add close functionality
+            modal.querySelector('button').addEventListener('click', function() {
+                document.body.removeChild(modal);
+            });
+        });
+        
+        // Mobile Money number copy functionality
+        document.querySelectorAll('.momo-number').forEach(container => {
+            container.addEventListener('click', function() {
+                const number = this.querySelector('.number').textContent;
+                navigator.clipboard.writeText(number.replace(/\s/g, ''));
+                
+                // Show copied notification
+                const notification = document.createElement('div');
+                notification.textContent = 'Number copied to clipboard!';
+                notification.style.position = 'fixed';
+                notification.style.bottom = '20px';
+                notification.style.left = '50%';
+                notification.style.transform = 'translateX(-50%)';
+                notification.style.backgroundColor = 'var(--success)';
+                notification.style.color = 'white';
+                notification.style.padding = '10px 20px';
+                notification.style.borderRadius = '5px';
+                notification.style.zIndex = '3000';
+                notification.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+                
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 2000);
+            });
+        });
+    </script>
+</body>
+</html>
